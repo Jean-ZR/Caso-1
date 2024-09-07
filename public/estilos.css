@@ -1,0 +1,351 @@
+/* Global Styles */
+body {
+  font-family: 'Arial', sans-serif;
+  background-color: #f4f7fa;
+  color: #333;
+  margin: 0;
+  padding: 20px;
+}
+
+h1 {
+  text-align: center;
+  color: #333;
+  font-size: 2.5em;
+}
+
+.beta {
+  font-size: 0.6em;
+  color: #888;
+}
+
+.content {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 30px;
+  background-color: #fff;
+  border-radius: 15px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+  transition: transform 0.3s ease;
+}
+
+.content:hover {
+  transform: translateY(-5px);
+}
+
+/* Shared Link */
+.shared-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.shared-link input {
+  width: 70%;
+  padding: 12px;
+  border: 2px solid #007bff;
+  border-radius: 8px;
+  margin-right: 10px;
+  font-size: 16px;
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.shared-link input:focus {
+  border-color: #0056b3;
+  box-shadow: 0 4px 8px rgba(0, 91, 187, 0.2);
+}
+
+.shared-link button {
+  padding: 12px 25px;
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s, box-shadow 0.3s;
+}
+
+.shared-link button:hover {
+  background-color: #0056b3;
+  box-shadow: 0 4px 8px rgba(0, 91, 187, 0.2);
+}
+
+/* Drop Area */
+.drop-area {
+  padding: 50px;
+  border: 3px dashed #007bff;
+  border-radius: 12px;
+  text-align: center;
+  background-color: #e9f5ff;
+  transition: background-color 0.3s, border-color 0.3s, box-shadow 0.3s;
+  cursor: pointer;
+  box-shadow: 0 4px 15px rgba(0, 123, 255, 0.1);
+}
+
+.drop-area.highlight {
+  background-color: #cce7ff;
+  border-color: #0056b3;
+  box-shadow: 0 6px 18px rgba(0, 91, 187, 0.2);
+}
+
+.drop-area p {
+  margin: 0;
+  font-size: 1.2em;
+  color: #444;
+}
+
+.drop-area button {
+  margin-top: 10px;
+  padding: 12px 30px;
+  background-color: #28a745;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s, box-shadow 0.3s;
+}
+
+.drop-area button:hover {
+  background-color: #218838;
+  box-shadow: 0 4px 8px rgba(33, 136, 56, 0.2);
+}
+
+/* Progress Bar */
+#progressContainer {
+  margin-top: 20px;
+}
+
+#progressBar {
+  width: 100%;
+  height: 20px;
+  border-radius: 10px;
+  overflow: hidden;
+  background-color: #dee2e6;
+}
+
+#uploadStatus {
+  margin-top: 10px;
+  font-size: 16px;
+  color: #555;
+}
+
+/* File List */
+.file-list-container {
+  background-color: #fff;
+  padding: 25px;
+  border-radius: 12px;
+  margin-top: 20px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+}
+
+.file-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.file-item img {
+  width: 100px;
+  height: auto;
+  margin-right: 15px;
+  border-radius: 10px;
+}
+
+.file-item a {
+  color: #007bff;
+  text-decoration: none;
+  font-size: 14px;
+  transition: color 0.3s;
+}
+
+.file-item a:hover {
+  color: #0056b3;
+}
+
+.file-info {
+  display: flex;
+  align-items: center;
+  flex-grow: 1;
+}
+
+.hidden {
+  display: none;
+}
+
+/* Buttons */
+.button-group {
+  display: flex;
+  justify-content: space-around;
+  margin-top: 30px;
+}
+
+.button-group .btn {
+  padding: 14px 28px;
+  font-size: 18px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.button-group .btn-primary {
+  background-color: #007bff;
+  color: white;
+}
+
+.button-group .btn-primary:hover {
+  background-color: #0056b3;
+  box-shadow: 0 6px 12px rgba(0, 91, 187, 0.15);
+}
+
+.button-group .btn-danger {
+  background-color: #dc3545;
+  color: white;
+}
+
+.button-group .btn-danger:hover {
+  background-color: #c82333;
+  box-shadow: 0 6px 12px rgba(200, 35, 51, 0.15);
+}
+/* Estilos generales para todos los tamaños de pantalla */
+body {
+  font-family: 'Arial', sans-serif;
+  background-color: #f0f2f5;
+  color: #333;
+  margin: 0;
+  padding: 20px;
+}
+
+.content {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+  text-align: center;
+  color: #333;
+  font-size: 2.5em;
+}
+
+/* Área de arrastre */
+.drop-area {
+  padding: 40px;
+  border: 2px dashed #007bff;
+  border-radius: 12px;
+  text-align: center;
+  background-color: #e9f5ff;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.drop-area p {
+  font-size: 1.2em;
+}
+
+/* Lista de archivos */
+.file-list-container {
+  background-color: #fff;
+  padding: 25px;
+  border-radius: 12px;
+  margin-top: 20px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+}
+
+.file-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.file-item img {
+  width: 100px;
+  height: auto;
+  margin-right: 15px;
+  border-radius: 10px;
+}
+
+.file-item a {
+  color: #007bff;
+  text-decoration: none;
+  font-size: 14px;
+  transition: color 0.3s;
+}
+
+.file-item a:hover {
+  color: #0056b3;
+}
+
+/* Grupo de botones */
+.button-group {
+  display: flex;
+  justify-content: space-around;
+  margin-top: 30px;
+}
+
+button {
+  padding: 14px 28px;
+  font-size: 16px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+button.btn-primary {
+  background-color: #007bff;
+  color: white;
+}
+
+button.btn-danger {
+  background-color: #dc3545;
+  color: white;
+}
+
+/* Estilos responsivos para móviles */
+@media only screen and (max-width: 600px) {
+  body {
+    padding: 10px;
+  }
+
+  .content {
+    max-width: 100%;
+    padding: 10px;
+  }
+
+  h1 {
+    font-size: 1.5em;
+  }
+
+  .drop-area {
+    padding: 20px;
+    font-size: 1em;
+  }
+
+  .button-group button {
+    width: 100%;
+    margin-bottom: 10px;
+    font-size: 1.2em;
+  }
+
+  .file-list-container {
+    padding: 10px;
+  }
+
+  .file-item {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .file-item img {
+    width: 100%;
+    height: auto;
+  }
+}

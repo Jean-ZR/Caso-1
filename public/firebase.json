@@ -1,0 +1,7 @@
+{
+    "hosting": {
+      "site": "caso-01",
+  
+      "public": "public"
+    }
+  }
