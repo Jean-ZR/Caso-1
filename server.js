@@ -7,7 +7,8 @@ const path = require('path');
 const archiver = require('archiver');
 
 const app = express();
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 3000;  // Puerto de Azure o localhost
+const host = '0.0.0.0';  // Escuchar en todas las interfaces de red
 
 const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
@@ -37,7 +38,7 @@ app.post('/upload', (req, res) => {
         const uploadedFiles = Array.isArray(files['files[]']) ? files['files[]'] : [files['files[]']];
 
         const isValidFilename = (filename) => {
-            const allowedExtensions = ['.png', '.jpg', '.jpeg', '.gif', '.mp4']; // Extensiones permitidas
+            const allowedExtensions = ['.png', '.jpg', '.jpeg', '.gif', '.mp4'];
             return allowedExtensions.includes(path.extname(filename).toLowerCase());
         };
 
@@ -75,14 +76,10 @@ app.post('/download_zip', express.json(), (req, res) => {
     const { files } = req.body;
     const zip = archiver('zip', { zlib: { level: 9 } });
 
-    // Configurar el nombre del archivo ZIP
     res.attachment('files.zip');
-
-    // Iniciar el pipe para enviar el ZIP mientras se va creando
     zip.pipe(res);
 
     if (files === 'all') {
-        // Descargar todos los archivos
         fs.readdir('./uploads', (err, allFiles) => {
             if (err) {
                 return res.status(500).send('Error al leer los archivos.');
@@ -97,14 +94,12 @@ app.post('/download_zip', express.json(), (req, res) => {
                 zip.file(filePath, { name: file });
             });
 
-            // Finalizar la creación del ZIP y cerrar el flujo de datos
             zip.finalize().catch(err => {
                 console.error('Error durante la creación del ZIP:', err);
                 res.status(500).send('Error al crear el archivo ZIP.');
             });
         });
     } else {
-        // Descargar archivos seleccionados
         if (!Array.isArray(files) || files.length === 0) {
             return res.status(400).send('No se seleccionaron archivos para descargar.');
         }
@@ -114,44 +109,11 @@ app.post('/download_zip', express.json(), (req, res) => {
             zip.file(filePath, { name: file });
         });
 
-        // Finalizar la creación del ZIP y cerrar el flujo de datos
         zip.finalize().catch(err => {
             console.error('Error durante la creación del ZIP:', err);
             res.status(500).send('Error al crear el archivo ZIP.');
         });
     }
-});
-
-// Eliminar todos los archivos
-app.post('/delete_all_files', (req, res) => {
-    fs.readdir('./uploads', (err, files) => {
-        if (err) {
-            return res.status(500).send('Error al eliminar los archivos.');
-        }
-        let errors = [];
-        files.forEach(file => {
-            fs.unlink(path.join('./uploads', file), (err) => {
-                if (err) errors.push(err.message);
-            });
-        });
-        if (errors.length > 0) {
-            return res.status(500).json({ error: errors });
-        }
-        res.send('Todos los archivos eliminados');
-    });
-});
-
-// Eliminar archivo individual
-app.post('/delete_file', express.json(), (req, res) => {
-    const fileName = req.body.file;
-    const filePath = path.join('./uploads', fileName);
-
-    fs.unlink(filePath, (err) => {
-        if (err) {
-            return res.status(500).send('Error al eliminar el archivo');
-        }
-        res.send('Archivo eliminado');
-    });
 });
 
 // WebSocket para sincronizar pestañas
@@ -160,10 +122,9 @@ wss.on('connection', (ws) => {
 
     ws.on('message', (message) => {
         console.log('Mensaje recibido del cliente:', message);
-        // Enviar el mensaje a todas las pestañas conectadas
         wss.clients.forEach((client) => {
             if (client.readyState === WebSocket.OPEN) {
-                client.send(message);  // Enviar el mensaje a todas las pestañas conectadas
+                client.send(message);
             }
         });
     });
@@ -177,8 +138,7 @@ wss.on('connection', (ws) => {
     });
 });
 
-
-// Escuchar en el puerto definido
-server.listen(port, () => {
-    console.log(`Servidor escuchando en http://localhost:${port}`);
+// Escuchar en el puerto de Azure o en localhost
+server.listen(port, host, () => {
+    console.log(`Servidor escuchando en http://${host}:${port}`);
 });
