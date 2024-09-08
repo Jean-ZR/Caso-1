@@ -1,24 +1,4 @@
-// Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
 document.addEventListener('DOMContentLoaded', () => {
-
-    // Your web app's Firebase configuration
-    const firebaseConfig = {
-        apiKey: "AIzaSyB57rlA1JUW5Sgdh61VfSQ8KfDueNIqgBo",
-        authDomain: "caso-1-bf68c.firebaseapp.com",
-        projectId: "caso-1-bf68c",
-        storageBucket: "caso-1-bf68c.appspot.com",
-        messagingSenderId: "126254921341",
-        appId: "1:126254921341:web:90c701ca4b2a91dd5ba314",
-        measurementId: "G-GR4SVGQS2Q"
-    };
-
-    // Initialize Firebase
-    const app = initializeApp(firebaseConfig);
-    const analytics = getAnalytics(app);
-
-    // Aquí comienza el resto de tu código existente
     const dropArea = document.getElementById('drop-area');
     const fileInput = document.getElementById('fileInput');
     const browseFilesButton = document.getElementById('browseFiles');
@@ -33,24 +13,30 @@ document.addEventListener('DOMContentLoaded', () => {
     // Conexión WebSocket
     let ws = new WebSocket('ws://localhost:3000');
 
+    // Al establecer conexión
     ws.onopen = () => {
         console.log('Conexión WebSocket establecida');
     };
 
+    // Al recibir un mensaje del servidor (como actualizar la lista de archivos)
     ws.onmessage = (event) => {
         if (event.data === 'refreshFileList') {
+            console.log('Mensaje recibido: actualizar lista de archivos');
             loadFileList();  // Refrescar la lista de archivos en todas las pestañas
         }
     };
 
-    ws.onclose = () => {
-        console.log('Conexión WebSocket cerrada');
-    };
+    // Enviar mensaje para notificar al WebSocket que ocurrió un cambio
+    function notifyChange() {
+        ws.send('refreshFileList');
+    }
 
+    // Botón de seleccionar archivos
     browseFilesButton.addEventListener('click', () => {
         fileInput.click();
     });
 
+    // Cuando se seleccionan archivos
     fileInput.addEventListener('change', (e) => {
         const files = e.target.files;
         uploadFiles(files);
@@ -76,6 +62,7 @@ document.addEventListener('DOMContentLoaded', () => {
         uploadFiles(files);
     });
 
+    // Subir archivos
     function uploadFiles(files) {
         [...files].forEach((file) => {
             const formData = new FormData();
@@ -90,10 +77,13 @@ document.addEventListener('DOMContentLoaded', () => {
             progressElement.innerHTML = `<span>${file.name}</span> <progress value="0" max="100"></progress><span class="time-remaining"></span>`;
             fileList.appendChild(progressElement);
 
+            // Evento para manejar el progreso de subida
             xhr.upload.addEventListener('progress', (e) => {
                 if (e.lengthComputable) {
                     const percentComplete = (e.loaded / e.total) * 100;
-                    progressElement.querySelector('progress').value = percentComplete;
+                    progressElement.querySelector('progress').value = percentComplete.toFixed(2);
+
+                    // Calcular el tiempo estimado restante
                     const elapsedTime = (Date.now() - uploadStartTime) / 1000;
                     const timeRemaining = ((e.total - e.loaded) / e.loaded) * elapsedTime;
                     progressElement.querySelector('.time-remaining').textContent = `Tiempo restante: ${timeRemaining.toFixed(2)} s`;
@@ -103,7 +93,7 @@ document.addEventListener('DOMContentLoaded', () => {
             xhr.onload = () => {
                 if (xhr.status === 200) {
                     loadFileList();
-                    ws.send('refreshFileList');  // Enviar mensaje al WebSocket para actualizar otras pestañas
+                    notifyChange();  // Notificar a todas las pestañas que se actualicen
                 } else {
                     console.error('Error al subir el archivo:', xhr.statusText);
                 }
@@ -113,6 +103,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // Cargar la lista de archivos
     function loadFileList() {
         fetch('/list_files')
             .then(response => response.json())
@@ -126,7 +117,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 data.files.forEach(file => {
                     const fileItem = document.createElement('div');
                     fileItem.classList.add('file-item');
-                    
+
                     let thumbnail = '';
                     if (file.match(/\.(jpg|jpeg|png|gif)$/)) {
                         thumbnail = `<img src="/uploads/${file}" class="thumbnail" alt="${file}">`;
@@ -153,6 +144,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
     }
 
+    // Eliminar todos los archivos
     deleteAllBtn.addEventListener('click', () => {
         if (confirm('¿Estás seguro de que deseas eliminar todos los archivos? Esta acción no se puede deshacer.')) {
             fetch('/delete_all_files', { method: 'POST' })
@@ -160,12 +152,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 .then(result => {
                     console.log(result);
                     loadFileList();
-                    ws.send('refreshFileList');  // Enviar mensaje al WebSocket para actualizar otras pestañas
+                    notifyChange();  // Notificar a todas las pestañas que se actualicen
                 })
                 .catch(error => console.error('Error al eliminar los archivos:', error));
         }
     });
 
+    // Eliminar archivo individual
     function deleteFile(fileName) {
         fetch('/delete_file', {
             method: 'POST',
@@ -176,11 +169,12 @@ document.addEventListener('DOMContentLoaded', () => {
         .then(result => {
             console.log(result);
             loadFileList();
-            ws.send('refreshFileList');  // Enviar mensaje al WebSocket para actualizar otras pestañas
+            notifyChange();  // Notificar a todas las pestañas que se actualicen
         })
         .catch(error => console.error('Error al eliminar archivo:', error));
     }
 
+    // Descargar archivos seleccionados como ZIP
     downloadSelectedBtn.addEventListener('click', () => {
         const selectedFiles = [...document.querySelectorAll('input[name="file"]:checked')].map(input => input.value);
 
@@ -207,7 +201,7 @@ document.addEventListener('DOMContentLoaded', () => {
         .catch(error => console.error('Error al descargar archivos seleccionados:', error));
     });
 
-    // Función para descargar todos los archivos como ZIP
+    // Descargar todos los archivos como ZIP
     zipDownloadBtn.addEventListener('click', () => {
         const totalFiles = document.querySelectorAll('input[name="file"]').length;
 
@@ -234,5 +228,6 @@ document.addEventListener('DOMContentLoaded', () => {
         .catch(error => console.error('Error al descargar todos los archivos:', error));
     });
 
-    loadFileList();  // Cargar la lista de archivos al iniciar la página
+    // Cargar la lista de archivos al iniciar la página
+    loadFileList();
 });
