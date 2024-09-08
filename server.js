@@ -5,29 +5,31 @@ const formidable = require('formidable');
 const fs = require('fs');
 const path = require('path');
 const archiver = require('archiver');
+const cors = require('cors');
 
 const app = express();
-const port = process.env.PORT || 3000;  // Puerto de Azure o localhost
-const host = '0.0.0.0';  // Escuchar en todas las interfaces de red
+const port = process.env.PORT || 3000;
 
 const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
 
-// Servir archivos estáticos desde la carpeta 'public'
+// Habilitar CORS para la aplicación en Azure
+app.use(cors({
+    origin: 'https://caso-1-fremhxhbgsfjhcbc.brazilsouth-01.azurewebsites.net'
+}));
+
 app.use('/public', express.static(path.join(__dirname, 'public')));
 
-// Ruta para servir el archivo index.html en la raíz
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// Manejo de subida de archivos con formidable
 app.post('/upload', (req, res) => {
     const form = new formidable.IncomingForm({
         multiples: true,
         uploadDir: './uploads',
         keepExtensions: true,
-        maxFileSize: 50 * 1024 * 1024 // Limitar a 50 MB
+        maxFileSize: 50 * 1024 * 1024
     });
 
     form.parse(req, (err, fields, files) => {
@@ -61,7 +63,6 @@ app.post('/upload', (req, res) => {
     });
 });
 
-// Lista de archivos
 app.get('/list_files', (req, res) => {
     fs.readdir('./uploads', (err, files) => {
         if (err) {
@@ -71,12 +72,12 @@ app.get('/list_files', (req, res) => {
     });
 });
 
-// Descargar archivos seleccionados o todos como ZIP
 app.post('/download_zip', express.json(), (req, res) => {
     const { files } = req.body;
     const zip = archiver('zip', { zlib: { level: 9 } });
 
     res.attachment('files.zip');
+
     zip.pipe(res);
 
     if (files === 'all') {
@@ -116,7 +117,36 @@ app.post('/download_zip', express.json(), (req, res) => {
     }
 });
 
-// WebSocket para sincronizar pestañas
+app.post('/delete_all_files', (req, res) => {
+    fs.readdir('./uploads', (err, files) => {
+        if (err) {
+            return res.status(500).send('Error al eliminar los archivos.');
+        }
+        let errors = [];
+        files.forEach(file => {
+            fs.unlink(path.join('./uploads', file), (err) => {
+                if (err) errors.push(err.message);
+            });
+        });
+        if (errors.length > 0) {
+            return res.status(500).json({ error: errors });
+        }
+        res.send('Todos los archivos eliminados');
+    });
+});
+
+app.post('/delete_file', express.json(), (req, res) => {
+    const fileName = req.body.file;
+    const filePath = path.join('./uploads', fileName);
+
+    fs.unlink(filePath, (err) => {
+        if (err) {
+            return res.status(500).send('Error al eliminar el archivo');
+        }
+        res.send('Archivo eliminado');
+    });
+});
+
 wss.on('connection', (ws) => {
     console.log('Nuevo cliente conectado');
 
@@ -138,7 +168,6 @@ wss.on('connection', (ws) => {
     });
 });
 
-// Escuchar en el puerto de Azure o en localhost
-server.listen(port, host, () => {
-    console.log(`Servidor escuchando en http://${host}:${port}`);
+server.listen(port, () => {
+    console.log(`Servidor escuchando en el puerto ${port}`);
 });
