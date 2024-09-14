@@ -8,14 +8,14 @@ const archiver = require('archiver');
 const cors = require('cors');
 
 const app = express();
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 3000;  // Usa el puerto asignado por Heroku o el puerto 3000
 
 const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
 
-// Habilitar CORS para la aplicación en Azure
+// Habilitar CORS
 app.use(cors({
-    origin: 'https://caso-1-fremhxhbgsfjhcbc.brazilsouth-01.azurewebsites.net'
+    origin: '*'  // Permite acceso desde cualquier origen, útil para producción
 }));
 
 app.use('/public', express.static(path.join(__dirname, 'public')));
@@ -168,6 +168,7 @@ wss.on('connection', (ws) => {
     });
 });
 
+// Escuchar en el puerto asignado por Heroku o el puerto 3000 localmente
 server.listen(port, () => {
     console.log(`Servidor escuchando en el puerto ${port}`);
 });

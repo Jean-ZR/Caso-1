@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let uploadStartTime = 0;
 
     // Conexión WebSocket
-    let ws = new WebSocket('wss://caso-1-fremhxhbgsfjhcbc.brazilsouth-01.azurewebsites.net');
+    let ws = new WebSocket('wss://caso-1-fremhxhbgsfjhcbc.brazilsouth-01.azurewebsites.net'); // Cambia la URL por la de tu servidor WebSocket
 
     ws.onopen = () => {
         console.log('Conexión WebSocket establecida');
@@ -25,7 +25,9 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     function notifyChange() {
-        ws.send('refreshFileList');
+        if (ws.readyState === WebSocket.OPEN) {
+            ws.send('refreshFileList');
+        }
     }
 
     browseFilesButton.addEventListener('click', () => {
@@ -63,7 +65,7 @@ document.addEventListener('DOMContentLoaded', () => {
             uploadStartTime = Date.now();
 
             const xhr = new XMLHttpRequest();
-            xhr.open('POST', '/upload');
+            xhr.open('POST', '/upload'); // Ruta de tu backend que maneja la subida de archivos
 
             const progressElement = document.createElement('div');
             progressElement.classList.add('progress-bar');
@@ -95,7 +97,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function loadFileList() {
-        fetch('/list_files')
+        fetch('/list_files') // Ruta del backend que devuelve la lista de archivos
             .then(response => response.json())
             .then(data => {
                 fileList.innerHTML = '';
@@ -135,7 +137,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     deleteAllBtn.addEventListener('click', () => {
         if (confirm('¿Estás seguro de que deseas eliminar todos los archivos? Esta acción no se puede deshacer.')) {
-            fetch('/delete_all_files', { method: 'POST' })
+            fetch('/delete_all_files', { method: 'POST' }) // Ruta para eliminar todos los archivos
                 .then(response => response.text())
                 .then(result => {
                     console.log(result);
@@ -213,5 +215,5 @@ document.addEventListener('DOMContentLoaded', () => {
         .catch(error => console.error('Error al descargar todos los archivos:', error));
     });
 
-    loadFileList();
+    loadFileList(); // Cargar la lista de archivos al inicio
 });
