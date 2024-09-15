@@ -8,16 +8,16 @@ const archiver = require('archiver');
 const cors = require('cors');
 
 const app = express();
-const port = process.env.PORT || 3000;  // Usa el puerto asignado por Heroku o el puerto 3000
+const port = process.env.PORT || 3000;
 
 const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
 
-// Habilitar CORS
 app.use(cors({
-    origin: '*'  // Permite acceso desde cualquier origen, útil para producción
+    origin: '*' // Cambia esto si necesitas restricciones específicas
 }));
 
+// Servir archivos estáticos de la carpeta 'public'
 app.use('/public', express.static(path.join(__dirname, 'public')));
 
 app.get('/', (req, res) => {
@@ -29,7 +29,7 @@ app.post('/upload', (req, res) => {
         multiples: true,
         uploadDir: './uploads',
         keepExtensions: true,
-        maxFileSize: 50 * 1024 * 1024
+        maxFileSize: 200 * 1024 * 1024 // Aumentado a 200MB
     });
 
     form.parse(req, (err, fields, files) => {
@@ -77,17 +77,12 @@ app.post('/download_zip', express.json(), (req, res) => {
     const zip = archiver('zip', { zlib: { level: 9 } });
 
     res.attachment('files.zip');
-
     zip.pipe(res);
 
     if (files === 'all') {
         fs.readdir('./uploads', (err, allFiles) => {
             if (err) {
                 return res.status(500).send('Error al leer los archivos.');
-            }
-
-            if (!Array.isArray(allFiles) || allFiles.length === 0) {
-                return res.status(400).send('No hay archivos para descargar.');
             }
 
             allFiles.forEach(file => {
@@ -101,10 +96,6 @@ app.post('/download_zip', express.json(), (req, res) => {
             });
         });
     } else {
-        if (!Array.isArray(files) || files.length === 0) {
-            return res.status(400).send('No se seleccionaron archivos para descargar.');
-        }
-
         files.forEach(file => {
             const filePath = path.join('./uploads', file);
             zip.file(filePath, { name: file });
@@ -168,7 +159,6 @@ wss.on('connection', (ws) => {
     });
 });
 
-// Escuchar en el puerto asignado por Heroku o el puerto 3000 localmente
 server.listen(port, () => {
     console.log(`Servidor escuchando en el puerto ${port}`);
 });

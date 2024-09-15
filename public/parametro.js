@@ -10,8 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let uploadStartTime = 0;
 
-    // Conexión WebSocket
-    let ws = new WebSocket('wss://caso-1-fremhxhbgsfjhcbc.brazilsouth-01.azurewebsites.net'); // Cambia la URL por la de tu servidor WebSocket
+    let ws = new WebSocket('ws://localhost:3000'); // Actualizar según despliegue
 
     ws.onopen = () => {
         console.log('Conexión WebSocket establecida');
@@ -20,14 +19,12 @@ document.addEventListener('DOMContentLoaded', () => {
     ws.onmessage = (event) => {
         if (event.data === 'refreshFileList') {
             console.log('Mensaje recibido: actualizar lista de archivos');
-            loadFileList();  // Refrescar la lista de archivos en todas las pestañas
+            loadFileList();
         }
     };
 
     function notifyChange() {
-        if (ws.readyState === WebSocket.OPEN) {
-            ws.send('refreshFileList');
-        }
+        ws.send('refreshFileList');
     }
 
     browseFilesButton.addEventListener('click', () => {
@@ -65,7 +62,7 @@ document.addEventListener('DOMContentLoaded', () => {
             uploadStartTime = Date.now();
 
             const xhr = new XMLHttpRequest();
-            xhr.open('POST', '/upload'); // Ruta de tu backend que maneja la subida de archivos
+            xhr.open('POST', '/upload');
 
             const progressElement = document.createElement('div');
             progressElement.classList.add('progress-bar');
@@ -86,7 +83,7 @@ document.addEventListener('DOMContentLoaded', () => {
             xhr.onload = () => {
                 if (xhr.status === 200) {
                     loadFileList();
-                    notifyChange();  // Notificar a todas las pestañas
+                    notifyChange();
                 } else {
                     console.error('Error al subir el archivo:', xhr.statusText);
                 }
@@ -97,7 +94,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function loadFileList() {
-        fetch('/list_files') // Ruta del backend que devuelve la lista de archivos
+        fetch('/list_files')
             .then(response => response.json())
             .then(data => {
                 fileList.innerHTML = '';
@@ -137,12 +134,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     deleteAllBtn.addEventListener('click', () => {
         if (confirm('¿Estás seguro de que deseas eliminar todos los archivos? Esta acción no se puede deshacer.')) {
-            fetch('/delete_all_files', { method: 'POST' }) // Ruta para eliminar todos los archivos
+            fetch('/delete_all_files', { method: 'POST' })
                 .then(response => response.text())
                 .then(result => {
                     console.log(result);
                     loadFileList();
-                    notifyChange();  // Notificar a todas las pestañas
+                    notifyChange();
                 })
                 .catch(error => console.error('Error al eliminar los archivos:', error));
         }
@@ -158,7 +155,7 @@ document.addEventListener('DOMContentLoaded', () => {
         .then(result => {
             console.log(result);
             loadFileList();
-            notifyChange();  // Notificar a todas las pestañas
+            notifyChange();
         })
         .catch(error => console.error('Error al eliminar archivo:', error));
     }
@@ -215,5 +212,5 @@ document.addEventListener('DOMContentLoaded', () => {
         .catch(error => console.error('Error al descargar todos los archivos:', error));
     });
 
-    loadFileList(); // Cargar la lista de archivos al inicio
+    loadFileList();
 });
